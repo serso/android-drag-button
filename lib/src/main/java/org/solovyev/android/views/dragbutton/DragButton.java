@@ -10,8 +10,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -101,7 +101,7 @@ public class DragButton extends Button {
                     if (localStartPoint != null) {
                         consumed = localOnDragListener.onDrag(DragButton.this, new DragEvent(localStartPoint, event));
                         if (consumed && localOnDragListener.isSuppressOnClickEvent()) {
-                            playSoundEffect(SoundEffectConstants.CLICK);
+                            performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                             final MotionEvent newEvent = MotionEvent.obtain(event);
                             newEvent.setAction(MotionEvent.ACTION_CANCEL);
                             super.onTouchEvent(newEvent);
