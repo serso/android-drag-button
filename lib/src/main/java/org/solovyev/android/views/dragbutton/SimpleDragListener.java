@@ -69,6 +69,6 @@ public class SimpleDragListener implements DragListener {
 
     public interface DragProcessor {
 
-        boolean processDragEvent(@NonNull DragDirection dragDirection, @NonNull DragButton dragButton, @NonNull PointF startPoint2d, @NonNull MotionEvent motionEvent);
+        boolean processDragEvent(@NonNull DragDirection direction, @NonNull DragButton button, @NonNull PointF startPoint, @NonNull MotionEvent event);
     }
 }
