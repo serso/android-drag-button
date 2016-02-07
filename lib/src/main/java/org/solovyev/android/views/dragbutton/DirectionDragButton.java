@@ -97,6 +97,12 @@ public class DirectionDragButton extends DragButton {
         measureText();
     }
 
+    @Override
+    public void setTextSize(int unit, float size) {
+        super.setTextSize(unit, size);
+        measureText();
+    }
+
     protected void measureText() {
         if (!initialized) {
             return;
@@ -108,6 +114,16 @@ public class DirectionDragButton extends DragButton {
         for (DirectionTextData textData : textDataMap.values()) {
             initDirectionTextPaint(basePaint, textData);
             textData.position = textData.direction.getTextPosition(textData.paint, basePaint, textData.text, getText(), width, height);
+            switch (textData.direction) {
+                case up:
+                case down:
+                case right:
+                    textData.position.x -= getPaddingRight();
+                    break;
+                case left:
+                    textData.position.x += getPaddingLeft();
+                    break;
+            }
         }
         invalidate();
     }
