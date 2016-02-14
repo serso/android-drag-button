@@ -10,60 +10,76 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.TextView;
+
+import static android.view.HapticFeedbackConstants.*;
 
 
 public class DragButton extends Button {
 
     @Nullable
     private PointF startPoint = null;
-
     @Nullable
     private DragListener onDragListener;
-
     private boolean showText = true;
-
     @Nullable
     private CharSequence textBackup;
+    private boolean vibrateOnDrag = true;
 
     public DragButton(Context context) {
         super(context);
+        init(context);
     }
 
     public DragButton(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(context);
     }
 
     public DragButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public DragButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init(context);
     }
 
-    public static boolean drawDrawables(@NonNull Canvas canvas, @NonNull TextView textView) {
-        int compoundPaddingLeft = textView.getCompoundPaddingLeft();
-        int compoundPaddingTop = textView.getCompoundPaddingTop();
-        int compoundPaddingRight = textView.getCompoundPaddingRight();
-        int compoundPaddingBottom = textView.getCompoundPaddingBottom();
-        int scrollX = textView.getScrollX();
-        int scrollY = textView.getScrollY();
-        int right = textView.getRight();
-        int left = textView.getLeft();
-        int bottom = textView.getBottom();
-        int top = textView.getTop();
-        Drawable[] drawables = textView.getCompoundDrawables();
+    private void init(@NonNull Context context) {
+        // we control haptic feedback ourselves
+        setHapticFeedbackEnabled(false);
+    }
+
+    public boolean isVibrateOnDrag() {
+        return vibrateOnDrag;
+    }
+
+    public void setVibrateOnDrag(boolean vibrateOnDrag) {
+        this.vibrateOnDrag = vibrateOnDrag;
+    }
+
+    public static boolean drawDrawables(@NonNull Canvas canvas, @NonNull TextView v) {
+        int compoundPaddingLeft = v.getCompoundPaddingLeft();
+        int compoundPaddingTop = v.getCompoundPaddingTop();
+        int compoundPaddingRight = v.getCompoundPaddingRight();
+        int compoundPaddingBottom = v.getCompoundPaddingBottom();
+        int scrollX = v.getScrollX();
+        int scrollY = v.getScrollY();
+        int right = v.getRight();
+        int left = v.getLeft();
+        int bottom = v.getBottom();
+        int top = v.getTop();
+        Drawable[] drawables = v.getCompoundDrawables();
         int vspace = bottom - top - compoundPaddingBottom - compoundPaddingTop;
         int hspace = right - left - compoundPaddingRight - compoundPaddingLeft;
         Drawable topDr = drawables[1];
         if (topDr != null) {
             canvas.save();
-            canvas.translate((float) (scrollX + compoundPaddingLeft + (hspace - topDr.getBounds().width()) / 2), (float) (scrollY + textView.getPaddingTop() + vspace / 2));
+            canvas.translate((float) (scrollX + compoundPaddingLeft + (hspace - topDr.getBounds().width()) / 2), (float) (scrollY + v.getPaddingTop() + vspace / 2));
             topDr.draw(canvas);
             canvas.restore();
             return true;
@@ -101,7 +117,9 @@ public class DragButton extends Button {
                     if (localStartPoint != null) {
                         consumed = localOnDragListener.onDrag(DragButton.this, new DragEvent(localStartPoint, event));
                         if (consumed && localOnDragListener.isSuppressOnClickEvent()) {
-                            performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                            if (isVibrateOnDrag()) {
+                                performHapticFeedback(KEYBOARD_TAP, FLAG_IGNORE_GLOBAL_SETTING | FLAG_IGNORE_VIEW_SETTING);
+                            }
                             final MotionEvent newEvent = MotionEvent.obtain(event);
                             newEvent.setAction(MotionEvent.ACTION_CANCEL);
                             super.onTouchEvent(newEvent);
